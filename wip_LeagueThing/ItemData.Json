@@ -1,0 +1,38 @@
+[
+
+  {
+    "type": "AdCritFlatArmorPen",
+    "name": "Collector",
+    "attackDamage": 50,
+    "critChance": 25,
+    "flatArmorPen": 10
+  },
+  {
+    "type": "InfinityEdge",
+    "name": "Infinity Edge",
+    "attackDamage": 70,
+    "critChance": 25,
+    "critDamage": 40
+  },
+  {
+    "type": "AdCritPercentageArmorPen",
+    "name": "Lord Dominik's Regards'",
+    "attackDamage": 35,
+    "critChance": 25,
+    "percentageArmorPen": 35
+  },
+  {
+    "type": "ApModifier",
+    "name": "Rabadons DeathCap",
+    "abilityPower": 130,
+    "apModifier": 30
+  },
+  {
+    "type": "ApAhHealthManaRegen",
+    "name": "Moonstone",
+    "abilityPower": 25,
+    "abilityHaste": 20,
+    "health": 200,
+    "baseManaRegen": 125
+  }
+]
