@@ -24,12 +24,14 @@ namespace wip_LeagueThing
         {
             champion.BuiltAttackDamage += AttackDamage;
             champion.CritChance += CritChance;
+            champion.inventory.Add(this);
         }
 
         public void Sold(ChampionKit champion)
         {
             champion.BuiltAttackDamage -= AttackDamage;
             champion.CritChance -= CritChance;
+            champion.inventory.Remove(this);
         }
     }
 
@@ -45,6 +47,7 @@ namespace wip_LeagueThing
             champion.BuiltAttackDamage += AttackDamage;
             champion.CritChance += CritChance;
             champion.FlatArmorPen += FlatArmorPen;
+            champion.inventory.Add(this);
         }
 
         public void Sold(ChampionKit champion)
@@ -52,6 +55,7 @@ namespace wip_LeagueThing
             champion.BuiltAttackDamage -= AttackDamage;
             champion.CritChance -= CritChance;
             champion.FlatArmorPen -= FlatArmorPen;
+            champion.inventory.Remove(this);
         }
     }
 
@@ -67,6 +71,7 @@ namespace wip_LeagueThing
             champion.BuiltAttackDamage += AttackDamage;
             champion.CritChance += CritChance;
             champion.PercentageArmorPen += PercentageArmorPen;
+            champion.inventory.Add(this);
         }
 
         public void Sold(ChampionKit champion)
@@ -74,6 +79,7 @@ namespace wip_LeagueThing
             champion.BuiltAttackDamage -= AttackDamage;
             champion.CritChance -= CritChance;
             champion.PercentageArmorPen -= PercentageArmorPen;
+            champion.inventory.Remove(this);
         }
     }
 
@@ -91,14 +97,72 @@ namespace wip_LeagueThing
             champion.BonusAbilityPower += AbilityPower;
             champion.AbilityHase += AbilityHaste;
             champion.BuiltHealth += Health;
+            champion.CurrentHealth += Health;
             champion.BaseManaRegen += BaseManaRegeneration;
+            champion.inventory.Add(this);
         }
         public void Sold(ChampionKit champion)
         {
             champion.BonusAbilityPower -= AbilityPower;
             champion.AbilityHase -= AbilityHaste;
+            champion.CurrentHealth -= Health;
             champion.BuiltHealth -= Health;
             champion.BaseManaRegen -= BaseManaRegeneration;
+            champion.inventory.Remove(this);
+        }
+    }
+
+    public class ApAhManaRegenHS : ShopItems
+    {
+        public string Name { get; set; }
+        public int ImageIndex { get; set; }
+
+        public double AbilityPower { get; set; }
+        public double AbilityHaste { get; set; }
+        public double BaseManaRegeneration { get; set; }
+        public double HealShieldPower { get; set; }
+        public void Bought(ChampionKit champion)
+        {
+            champion.BonusAbilityPower += AbilityPower;
+            champion.AbilityHase += AbilityHaste;
+            champion.BonusHealShieldPower += HealShieldPower;
+            champion.BaseManaRegen += BaseManaRegeneration;
+            champion.inventory.Add(this);
+        }
+        public void Sold(ChampionKit champion)
+        {
+            champion.BonusAbilityPower -= AbilityPower;
+            champion.AbilityHase -= AbilityHaste;
+            champion.BonusHealShieldPower -= HealShieldPower;
+            champion.BaseManaRegen -= BaseManaRegeneration;
+            champion.inventory.Remove(this);
+        }
+    }
+    public class ApManaRegenHS : ShopItems
+    {
+        public string Name { get; set; }
+        public int ImageIndex { get; set; }
+
+        public double AbilityPower { get; set; }
+        public double BaseManaRegeneration { get; set; }
+        public double HealShieldPower { get; set; }
+        public void Bought(ChampionKit champion)
+        {
+            champion.BonusAbilityPower += AbilityPower;
+            champion.BonusHealShieldPower += HealShieldPower;
+            champion.BaseManaRegen += BaseManaRegeneration;
+            if (Name == "Dawncore")
+                champion.Dawncore = true;
+            champion.inventory.Add(this);
+        }
+        public void Sold(ChampionKit champion)
+        {
+            champion.BonusAbilityPower -= AbilityPower;
+            champion.BonusHealShieldPower -= HealShieldPower;
+            champion.BaseManaRegen -= BaseManaRegeneration;
+            if (Name == "Dawncore")
+                champion.Dawncore = false;
+            champion.inventory.Remove(this);
         }
     }
 
@@ -120,6 +184,7 @@ namespace wip_LeagueThing
             champion.BuiltAttackDamage += AttackDamage;
             champion.CritDamage += (CritDamage / 100);
             champion.CritChance += CritChance;
+            champion.inventory.Add(this);
         }
         public void Sold(ChampionKit champion)
         {
@@ -132,6 +197,7 @@ namespace wip_LeagueThing
             champion.BuiltAttackDamage -= AttackDamage;
             champion.CritDamage -= (CritDamage / 100);
             champion.CritChance -= CritChance;
+            champion.inventory.Remove(this);
         }
 
     }
@@ -146,11 +212,13 @@ namespace wip_LeagueThing
         {
             champion.BonusAbilityPower += AbilityPower;
             champion.AbilityPowerModifier += ApModifier;
+            champion.inventory.Add(this);
         }
         public void Sold(ChampionKit champion)
         {
-            champion.BuiltAttackDamage -= AbilityPower;
+            champion.BonusAbilityPower -= AbilityPower;
             champion.AbilityPowerModifier -= ApModifier;
+            champion.inventory.Remove(this);
         }
     }
 

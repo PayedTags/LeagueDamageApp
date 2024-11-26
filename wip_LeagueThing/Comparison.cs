@@ -12,13 +12,14 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Xml.Linq;
 using System.Text.Json;
 using wip_LeagueThing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace wip_LeagueThing
 {
     public partial class Comparison : Form
     {
 
-
+        #region variables
         ChampionKit MainChampion = new ChampionKit();
         ChampionKit SecondaryChampion = new ChampionKit();
         bool twoChamps = false;
@@ -44,9 +45,7 @@ namespace wip_LeagueThing
 
         Color physicalDamageColor = Color.FromArgb(255, 140, 52);
         Color magicalDamageColor = Color.FromArgb(0, 176, 240);
-
-
-
+        #endregion
 
 
         public Comparison(string[] championName)
@@ -136,8 +135,8 @@ namespace wip_LeagueThing
 
 
             LoadItemsFromJson();
-            MainChampion.inventory.Add(shopItems[4]);
-            TempItems(MainChampion);
+            //MainChampion.inventory.Add(shopItems[4]);
+            //TempItems(MainChampion);
             cmbBox_Level1.SelectedIndex = 0;
 
             if (twoChamps)
@@ -155,7 +154,7 @@ namespace wip_LeagueThing
         private void LevelSelected(object sender, EventArgs e)
         {
             UpdateShownStats(MainChampion, txtbox_Stats1, cmbBox_Level1, lstview_Icons1, txtBox_Champion1Name, abilitiesIcons1, abilitiesToggle1);
-            
+
             if (secondChampLoaded)
                 LevelUpHeal(MainChampion);
             CalculateChampCompareDamage(MainChampion, SecondaryChampion, abilitiesDamageCompare1);
@@ -168,7 +167,7 @@ namespace wip_LeagueThing
         private void LevelSelectedSecondary(object sender, EventArgs e)
         {
             UpdateShownStats(SecondaryChampion, txtbox_Stats2, cmbBox_Level2, lstView_Icons2, txtbox_Champion2Name, abilitiesIcons2, abilitiesToggle2);
-            
+
             if (secondChampLoaded)
                 LevelUpHeal(SecondaryChampion);
             CalculateChampCompareDamage(MainChampion, SecondaryChampion, abilitiesDamageCompare1);
@@ -232,6 +231,8 @@ namespace wip_LeagueThing
                 textBoxStats.Text += "\r\nFlat Magic Pen: " + champion.FlatMagicPen.ToString();
             if (champion.PercentageMagicPen > 0)
                 textBoxStats.Text += "\r\nPercentage Magic Pen: " + champion.PercentageMagicPen.ToString() + "%";
+            if (champion.TotalHealShieldPower > 0)
+                textBoxStats.Text += "\r\nHeal and Shield Power : " + champion.TotalHealShieldPower.ToString() + "%";
             textBoxStats.Text += "\r\nArmor: " + champion.TotalArmor.ToString("0.0");
             textBoxStats.Text += "\r\nMagic Resist: " + champion.TotalMagicResist.ToString("0.0");
             #endregion
@@ -263,7 +264,7 @@ namespace wip_LeagueThing
         //Update all the champion stats
         private void UpdateChampTotalStats(ChampionKit champion)
         {
-          
+
 
             #region AttackDamage
             champion.BonusAttackDamage = champion.AttackDamageGrowth * (champion.Level - 1);
@@ -284,7 +285,13 @@ namespace wip_LeagueThing
 
             #region AbilityPower
             //add items bonuses here
-            champion.TotalAbilityPower = champion.BonusAbilityPower * (1 + (champion.AbilityPowerModifier / 100));
+            double tempAp = 0, tempHS = 0;
+            if (champion.Dawncore)
+            {
+                tempAp = (champion.BaseManaRegen / 100) * 10;
+                tempHS = (champion.BaseManaRegen / 100) * 2;
+            }
+            champion.TotalAbilityPower = (champion.BonusAbilityPower + tempAp) * (1 + (champion.AbilityPowerModifier / 100));
             #endregion
 
             #region Health
@@ -308,7 +315,11 @@ namespace wip_LeagueThing
             champion.TotalMagicResist = champion.TotalMagicResist * (1 + (champion.MagicResistModifier / 100));
             #endregion
 
-             
+            #region HealShieldPower
+            champion.TotalHealShieldPower = champion.BonusHealShieldPower;
+            champion.TotalHealShieldPower += tempHS;
+            #endregion
+
         }
 
 
@@ -571,6 +582,7 @@ namespace wip_LeagueThing
             context.BonusDamage = champion.BonusDamage;
             context.AbilityBonusDamage = champion.AbilityBonusDamage;
             context.Abilities = champion.Abilities;
+            context.HealShieldPower = champion.TotalHealShieldPower;
             return context;
         }
 
@@ -594,6 +606,7 @@ namespace wip_LeagueThing
             context.BonusDamage = damageDealer.BonusDamage;
             context.AbilityBonusDamage = damageDealer.AbilityBonusDamage;
             context.Abilities = damageDealer.Abilities;
+            context.HealShieldPower = damageDealer.TotalHealShieldPower;
 
             context.EnemyMaxHealth = damageTaker.MaxHealth;
             context.EnemyCurrentHealth = damageTaker.CurrentHealth;
@@ -612,75 +625,9 @@ namespace wip_LeagueThing
         }
 
 
-        //Load items from Json File
-        private void LoadItemsFromJson()
-        {
-            string jsonData = File.ReadAllText("F:\\Projects\\wip_LeagueThing\\wip_LeagueThing\\ItemData.Json");
-
-            JsonDocument doc = JsonDocument.Parse(jsonData);
-
-            foreach (var item in doc.RootElement.EnumerateArray())
-            {
-                ShopItems tempItem;
-                switch (item.GetProperty("type").GetString())
-                {
-                    case "AdCritFlatArmorPen":
-                        tempItem = new AdCritFlatArmorPen
-                        {
-                            Name = item.GetProperty("name").GetString(),
-                            AttackDamage = item.GetProperty("attackDamage").GetDouble(),
-                            CritChance = item.GetProperty("critChance").GetDouble(),
-                            FlatArmorPen = item.GetProperty("flatArmorPen").GetDouble()
-                        };
-                        shopItems.Add(tempItem);
-                        break;
-                    case "AdCritPercentageArmorPen":
-                        tempItem = new AdCritPercentageArmorPen
-                        {
-                            Name = item.GetProperty("name").GetString(),
-                            AttackDamage = item.GetProperty("attackDamage").GetDouble(),
-                            CritChance = item.GetProperty("critChance").GetDouble(),
-                            PercentageArmorPen = item.GetProperty("percentageArmorPen").GetDouble()
-                        };
-                        shopItems.Add(tempItem);
-                        break;
-                    case "InfinityEdge":
-                        tempItem = new InfinityEdge
-                        {
-                            Name = item.GetProperty("name").GetString(),
-                            AttackDamage = item.GetProperty("attackDamage").GetDouble(),
-                            CritChance = item.GetProperty("critChance").GetDouble(),
-                            CritDamage = item.GetProperty("critDamage").GetDouble()
-                        };
-                        shopItems.Add(tempItem);
-                        break;
-                    case "ApModifier":
-                        tempItem = new Rabadons
-                        {
-                            Name = item.GetProperty("name").GetString(),
-                            AbilityPower = item.GetProperty("abilityPower").GetDouble(),
-                            ApModifier = item.GetProperty("apModifier").GetDouble()
-                        };
-                        shopItems.Add(tempItem);
-                        break;
-                    case "ApAhHealthManaRegen":
-                        tempItem = new ApAhHealthManaRegen
-                        {
-                            Name = item.GetProperty("name").GetString(),
-                            AbilityPower = item.GetProperty("abilityPower").GetDouble(),
-                            AbilityHaste = item.GetProperty("abilityHaste").GetDouble(),
-                            Health = item.GetProperty("health").GetDouble(),
-                            BaseManaRegeneration = item.GetProperty("baseManaRegen").GetDouble(),
-                        };
-                        shopItems.Add(tempItem);
-                        break;
-                }
-
-            }
-        }
 
 
-      
+
 
         #endregion
 
@@ -1130,7 +1077,7 @@ namespace wip_LeagueThing
                 abilityDamage *= champion.Abilities[i].HitCount;
                 abilityDamage *= 1 + (champion.BonusDamage + champion.AbilityBonusDamage);
                 abilitiesDamage[i + 1].Text = champion.Abilities[i].Name + " Damage: " + abilityDamage.ToString("0.0");
-                if (champion.Abilities[i].CanCrit && champion.CritChance > 0 )
+                if (champion.Abilities[i].CanCrit && champion.CritChance > 0)
                 {
                     abilityDamage = champion.Abilities[i].CalculateCritDamage(context);
                     abilityDamage *= champion.Abilities[i].HitCount;
@@ -1262,7 +1209,7 @@ namespace wip_LeagueThing
                                 qDamage = damageDealer.Abilities[1].CalculateDamage(context);
                                 qDamage = Calculate.MitigateAbilityHitDamage(damageDealer, damageDealer.Abilities[1], context, damageTaker);
                                 tempContext.EnemyCurrentHealth -= qDamage;
-                                if(tempContext.EnemyCurrentHealth < 0)
+                                if (tempContext.EnemyCurrentHealth < 0)
                                     tempContext.EnemyCurrentHealth = 0;
 
                                 abilityDamage = Calculate.MissingHealthAbilityDamage(damageDealer, damageDealer.Abilities[i], abilityDamage, tempContext, damageTaker);
@@ -1356,11 +1303,11 @@ namespace wip_LeagueThing
         private void ChampAttack(ChampionKit damageDealer, IAbility ability, DamageCalculationContext context, ChampionKit damageTaker)
         {
             double damageDealt = 0.0, bonusDamage = 0.0, healAmmount = 0.0;
-            switch(damageDealer.Name)
+            switch (damageDealer.Name)
             {
                 case "Varus":
                     {
-                        switch(ability.Name)
+                        switch (ability.Name)
                         {
                             case "Piercing Arrow":
                                 {
@@ -1384,9 +1331,9 @@ namespace wip_LeagueThing
 
 
                                         damageDealt += bonusDamage;
-                                        
+
                                         context.EnemyCurrentHealth -= damageDealt;
-                                        if(context.EnemyCurrentHealth < 0)
+                                        if (context.EnemyCurrentHealth < 0)
                                             context.EnemyCurrentHealth = 0;
                                     }
                                     else
@@ -1424,13 +1371,13 @@ namespace wip_LeagueThing
                     break;
                 case "Soraka":
                     {
-                        switch(ability.DamageType)
+                        switch (ability.DamageType)
                         {
                             case "Heal":
                                 {
-                                    if(ability.Name == "Wish")
+                                    if (ability.Name == "Wish")
                                     {
-                                    
+
                                         healAmmount = ability.CalculateDamage(context);
                                         if (damageDealer.CurrentHealth < (damageDealer.MaxHealth * 0.4))
                                             healAmmount *= 1.5;
@@ -1453,9 +1400,7 @@ namespace wip_LeagueThing
                                     else
                                         LogHealAmmount(damageDealer, ability, healAmmount, richtxtbox_Logs2);
 
-                                    UpdateBothHealthBars();
-                                    CalculateChampCompareDamage(MainChampion, SecondaryChampion, abilitiesDamageCompare1);
-                                    CalculateChampCompareDamage(SecondaryChampion, MainChampion, abilitiesDamageCompare2);
+                                    UpdateAll();
                                     return;
                                 }
                             default:
@@ -1469,7 +1414,8 @@ namespace wip_LeagueThing
                                 }
                                 break;
                         }
-                    }break;
+                    }
+                    break;
                 default:
                     {
                         damageDealt = Calculate.AverageMitigatedAbilityDamage(damageDealer, ability, context, damageTaker);
@@ -1487,9 +1433,7 @@ namespace wip_LeagueThing
             if (damageTaker.CurrentHealth < 0)
                 damageTaker.CurrentHealth = 0;
 
-            UpdateBothHealthBars();
-            CalculateChampCompareDamage(MainChampion, SecondaryChampion, abilitiesDamageCompare1);
-            CalculateChampCompareDamage(SecondaryChampion, MainChampion, abilitiesDamageCompare2);
+            UpdateAll();
         }
 
 
@@ -1593,11 +1537,7 @@ namespace wip_LeagueThing
         private void btn_HealMainChampion_Click(object sender, EventArgs e)
         {
             MainChampion.CurrentHealth = MainChampion.MaxHealth;
-            UpdateHealthbar(MainChampion);
-            
-            UpdateShownStats(MainChampion, txtbox_Stats1, cmbBox_Level1, lstview_Icons1, txtBox_Champion1Name, abilitiesIcons1, abilitiesToggle1);
-            CalculateChampCompareDamage(MainChampion, SecondaryChampion, abilitiesDamageCompare1);
-            CalculateChampCompareDamage(SecondaryChampion, MainChampion, abilitiesDamageCompare2);
+            UpdateAll();
         }
 
 
@@ -1605,11 +1545,7 @@ namespace wip_LeagueThing
         private void btn_HealSecondaryChampion_Click(object sender, EventArgs e)
         {
             SecondaryChampion.CurrentHealth = SecondaryChampion.MaxHealth;
-            UpdateHealthbar(SecondaryChampion);
-           
-            UpdateShownStats(SecondaryChampion, txtbox_Stats2, cmbBox_Level2, lstView_Icons2, txtbox_Champion2Name, abilitiesIcons2, abilitiesToggle2);
-            CalculateChampCompareDamage(MainChampion, SecondaryChampion, abilitiesDamageCompare1);
-            CalculateChampCompareDamage(SecondaryChampion, MainChampion, abilitiesDamageCompare2);
+            UpdateAll();
         }
 
 
@@ -1618,11 +1554,7 @@ namespace wip_LeagueThing
         {
             MainChampion.CurrentHealth = MainChampion.MaxHealth;
             SecondaryChampion.CurrentHealth = SecondaryChampion.MaxHealth;
-            UpdateBothHealthBars();
-            UpdateShownStats(MainChampion, txtbox_Stats1, cmbBox_Level1, lstview_Icons1, txtBox_Champion1Name, abilitiesIcons1, abilitiesToggle1);
-            UpdateShownStats(SecondaryChampion, txtbox_Stats2, cmbBox_Level2, lstView_Icons2, txtbox_Champion2Name, abilitiesIcons2, abilitiesToggle2);
-            CalculateChampCompareDamage(MainChampion, SecondaryChampion, abilitiesDamageCompare1);
-            CalculateChampCompareDamage(SecondaryChampion, MainChampion, abilitiesDamageCompare2);
+            UpdateAll();
         }
         #endregion
 
@@ -1632,5 +1564,224 @@ namespace wip_LeagueThing
             richtxtbox_Logs1.Select(0, 0);
             richtxtbox_Logs2.Select(0, 0);*/
         }
+
+
+        #region item system
+        //Load items from Json File
+        private void LoadItemsFromJson()
+        {
+            string jsonData = File.ReadAllText("F:\\Projects\\wip_LeagueThing\\wip_LeagueThing\\ItemData.Json");
+
+            JsonDocument doc = JsonDocument.Parse(jsonData);
+
+            foreach (var item in doc.RootElement.EnumerateArray())
+            {
+                ShopItems tempItem;
+                switch (item.GetProperty("type").GetString())
+                {
+                    case "AdCritFlatArmorPen":
+                        tempItem = new AdCritFlatArmorPen
+                        {
+                            Name = item.GetProperty("name").GetString(),
+                            ImageIndex = item.GetProperty("imageIndex").GetInt32(),
+                            AttackDamage = item.GetProperty("attackDamage").GetDouble(),
+                            CritChance = item.GetProperty("critChance").GetDouble(),
+                            FlatArmorPen = item.GetProperty("flatArmorPen").GetDouble()
+                        };
+                        shopItems.Add(tempItem);
+                        break;
+                    case "AdCritPercentageArmorPen":
+                        tempItem = new AdCritPercentageArmorPen
+                        {
+                            Name = item.GetProperty("name").GetString(),
+                            ImageIndex = item.GetProperty("imageIndex").GetInt32(),
+                            AttackDamage = item.GetProperty("attackDamage").GetDouble(),
+                            CritChance = item.GetProperty("critChance").GetDouble(),
+                            PercentageArmorPen = item.GetProperty("percentageArmorPen").GetDouble()
+                        };
+                        shopItems.Add(tempItem);
+                        break;
+                    case "InfinityEdge":
+                        tempItem = new InfinityEdge
+                        {
+                            Name = item.GetProperty("name").GetString(),
+                            ImageIndex = item.GetProperty("imageIndex").GetInt32(),
+                            AttackDamage = item.GetProperty("attackDamage").GetDouble(),
+                            CritChance = item.GetProperty("critChance").GetDouble(),
+                            CritDamage = item.GetProperty("critDamage").GetDouble()
+                        };
+                        shopItems.Add(tempItem);
+                        break;
+                    case "ApModifier":
+                        tempItem = new Rabadons
+                        {
+                            Name = item.GetProperty("name").GetString(),
+                            ImageIndex = item.GetProperty("imageIndex").GetInt32(),
+                            AbilityPower = item.GetProperty("abilityPower").GetDouble(),
+                            ApModifier = item.GetProperty("apModifier").GetDouble()
+                        };
+                        shopItems.Add(tempItem);
+                        break;
+                    case "ApAhHealthManaRegen":
+                        tempItem = new ApAhHealthManaRegen
+                        {
+                            Name = item.GetProperty("name").GetString(),
+                            ImageIndex = item.GetProperty("imageIndex").GetInt32(),
+                            AbilityPower = item.GetProperty("abilityPower").GetDouble(),
+                            AbilityHaste = item.GetProperty("abilityHaste").GetDouble(),
+                            Health = item.GetProperty("health").GetDouble(),
+                            BaseManaRegeneration = item.GetProperty("baseManaRegen").GetDouble(),
+                        };
+                        shopItems.Add(tempItem);
+                        break;
+                    case "ApAhManaRegenHS":
+                        tempItem = new ApAhManaRegenHS
+                        {
+                            Name = item.GetProperty("name").GetString(),
+                            ImageIndex = item.GetProperty("imageIndex").GetInt32(),
+                            AbilityPower = item.GetProperty("abilityPower").GetDouble(),
+                            AbilityHaste = item.GetProperty("abilityHaste").GetDouble(),
+                            HealShieldPower = item.GetProperty("healShieldPower").GetDouble(),
+                            BaseManaRegeneration = item.GetProperty("baseManaRegen").GetDouble(),
+                        };
+                        shopItems.Add(tempItem);
+                        break;
+                    case "ApManaRegenHS":
+                        tempItem = new ApManaRegenHS
+                        {
+                            Name = item.GetProperty("name").GetString(),
+                            ImageIndex = item.GetProperty("imageIndex").GetInt32(),
+                            AbilityPower = item.GetProperty("abilityPower").GetDouble(),
+                            HealShieldPower = item.GetProperty("healShieldPower").GetDouble(),
+                            BaseManaRegeneration = item.GetProperty("baseManaRegen").GetDouble(),
+                        };
+                        shopItems.Add(tempItem);
+                        break;
+                }
+
+            }
+        }
+
+
+        private void Shop1(object sender, EventArgs e)
+        {
+            OpenShop(MainChampion);
+        }
+
+        private void Shop2(object sender, EventArgs e)
+        {
+            OpenShop(SecondaryChampion); ;
+        }
+
+        private void lstview_Items1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (lstview_Items1.SelectedItems.Count == 0)
+                return;
+
+            int index = lstview_Items1.SelectedIndices[0];
+            foreach (ShopItems item in shopItems)
+            {
+                if (item.ImageIndex == lstview_Items1.SelectedItems[0].ImageIndex)
+                    index = shopItems.IndexOf(item);
+            }
+            ItemRemoved(MainChampion, lstview_Items1, index);
+        }
+
+        private void lstview_Items2_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (lstview_Items2.SelectedItems.Count == 0)
+                return;
+
+            int index = lstview_Items2.SelectedIndices[0];
+            foreach (ShopItems item in shopItems)
+            {
+                if (item.ImageIndex == lstview_Items2.SelectedItems[0].ImageIndex)
+                    index = shopItems.IndexOf(item);
+            }
+            ItemRemoved(SecondaryChampion, lstview_Items2, index);
+        }
+
+        private void OpenShop(ChampionKit champion)
+        {
+            DialogResult result;
+            do
+            {
+                using (var itemShop = new Shop(shopItems))
+                {
+                    itemShop.StartPosition = FormStartPosition.Manual;
+                    itemShop.Location = this.Location;
+                    result = itemShop.ShowDialog();
+                    if (result == DialogResult.OK)
+                    {
+                        int itemIndex = itemShop.ItemBought;
+                        if (IsMainChampion(champion))
+                            ItemAdded(MainChampion, lstview_Items1, itemIndex);
+                        else
+                            ItemAdded(SecondaryChampion, lstview_Items2, itemIndex);
+
+                    }
+                }
+            }while(result == DialogResult.OK);
+        }
+
+        private void ItemAdded(ChampionKit champion, System.Windows.Forms.ListView listView, int itemIndex)
+        {
+            if (champion.inventory.Count == 6)
+                return;
+
+            foreach (var item in champion.inventory)
+            {
+                if (item == shopItems[itemIndex])
+                    return;
+            }
+
+            shopItems[itemIndex].Bought(champion);
+
+            ListViewItem lstviewItem = new ListViewItem();
+            lstviewItem.ImageIndex = shopItems[itemIndex].ImageIndex;
+            listView.Items.Add(lstviewItem);
+
+            UpdateAll();
+        }
+
+        private void ItemRemoved(ChampionKit champion, System.Windows.Forms.ListView listView, int itemIndex)
+        {
+            shopItems[itemIndex].Sold(champion);
+
+            foreach (ListViewItem item in listView.Items)
+            {
+                if (item.ImageIndex == shopItems[itemIndex].ImageIndex)
+                    listView.Items.Remove(item);
+            }
+
+            UpdateAll();
+        }
+        #endregion
+
+
+        private void UpdateAll()
+        {
+            UpdateShownStats(MainChampion, txtbox_Stats1, cmbBox_Level1, lstview_Icons1, txtBox_Champion1Name, abilitiesIcons1, abilitiesToggle1);
+            UpdateShownStats(SecondaryChampion, txtbox_Stats2, cmbBox_Level2, lstView_Icons2, txtbox_Champion2Name, abilitiesIcons2, abilitiesToggle2);
+
+            UpdateBothHealthBars();
+
+            CalculateChampCompareDamage(MainChampion, SecondaryChampion, abilitiesDamageCompare1);
+            CalculateChampCompareDamage(SecondaryChampion, MainChampion, abilitiesDamageCompare2);
+        }
+
+        private void UpdateBasic()
+        {
+            UpdateShownStats(MainChampion, txtbox_Stats1, cmbBox_Level1, lstview_Icons1, txtBox_Champion1Name, abilitiesIcons1, abilitiesToggle1);
+            UpdateShownStats(SecondaryChampion, txtbox_Stats2, cmbBox_Level2, lstView_Icons2, txtbox_Champion2Name, abilitiesIcons2, abilitiesToggle2);
+        }
+
+        private void UpdateCompare()
+        {
+            CalculateChampCompareDamage(MainChampion, SecondaryChampion, abilitiesDamageCompare1);
+            CalculateChampCompareDamage(SecondaryChampion, MainChampion, abilitiesDamageCompare2);
+        }
+
+      
     }
 }

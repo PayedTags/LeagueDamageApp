@@ -126,6 +126,11 @@
             btn_HealAll = new Button();
             richtxtbox_Logs1 = new RichTextBox();
             richtxtbox_Logs2 = new RichTextBox();
+            lstview_Items1 = new ListView();
+            imgList_Items = new ImageList(components);
+            btn_Shop1 = new Button();
+            btn_Shop2 = new Button();
+            lstview_Items2 = new ListView();
             SuspendLayout();
             // 
             // imgList_XayahIcons
@@ -1107,11 +1112,74 @@
             richtxtbox_Logs2.Text = "";
             richtxtbox_Logs2.SelectionChanged += richtxtbox_Logs1_SelectionChanged;
             // 
+            // lstview_Items1
+            // 
+            lstview_Items1.Alignment = ListViewAlignment.SnapToGrid;
+            lstview_Items1.LargeImageList = imgList_Items;
+            lstview_Items1.Location = new Point(1395, 4);
+            lstview_Items1.MultiSelect = false;
+            lstview_Items1.Name = "lstview_Items1";
+            lstview_Items1.Size = new Size(177, 210);
+            lstview_Items1.SmallImageList = imgList_Items;
+            lstview_Items1.TabIndex = 87;
+            lstview_Items1.UseCompatibleStateImageBehavior = false;
+            lstview_Items1.MouseDoubleClick += lstview_Items1_MouseDoubleClick;
+            // 
+            // imgList_Items
+            // 
+            imgList_Items.ColorDepth = ColorDepth.Depth32Bit;
+            imgList_Items.ImageStream = (ImageListStreamer)resources.GetObject("imgList_Items.ImageStream");
+            imgList_Items.TransparentColor = Color.Transparent;
+            imgList_Items.Images.SetKeyName(0, "6676_marksman_t3_thecollector.png");
+            imgList_Items.Images.SetKeyName(1, "3031_marksman_t3_infinityedge.png");
+            imgList_Items.Images.SetKeyName(2, "3036_marksman_t3_dominikregards.png");
+            imgList_Items.Images.SetKeyName(3, "3089_mage_t3_deathcap.png");
+            imgList_Items.Images.SetKeyName(4, "6617_enchanter_t4_moonstonerenewer.png");
+            imgList_Items.Images.SetKeyName(5, "3744_enchanter_t3_staffofflowingwater.png");
+            imgList_Items.Images.SetKeyName(6, "6621_dawncore.png");
+            // 
+            // btn_Shop1
+            // 
+            btn_Shop1.Location = new Point(1395, 219);
+            btn_Shop1.Name = "btn_Shop1";
+            btn_Shop1.Size = new Size(177, 23);
+            btn_Shop1.TabIndex = 88;
+            btn_Shop1.Text = "Shop";
+            btn_Shop1.UseVisualStyleBackColor = true;
+            btn_Shop1.Click += Shop1;
+            // 
+            // btn_Shop2
+            // 
+            btn_Shop2.Location = new Point(1395, 656);
+            btn_Shop2.Name = "btn_Shop2";
+            btn_Shop2.Size = new Size(177, 23);
+            btn_Shop2.TabIndex = 90;
+            btn_Shop2.Text = "Shop";
+            btn_Shop2.UseVisualStyleBackColor = true;
+            btn_Shop2.Click += Shop2;
+            // 
+            // lstview_Items2
+            // 
+            lstview_Items2.Alignment = ListViewAlignment.SnapToGrid;
+            lstview_Items2.LargeImageList = imgList_Items;
+            lstview_Items2.Location = new Point(1395, 685);
+            lstview_Items2.MultiSelect = false;
+            lstview_Items2.Name = "lstview_Items2";
+            lstview_Items2.Size = new Size(177, 210);
+            lstview_Items2.SmallImageList = imgList_Items;
+            lstview_Items2.TabIndex = 89;
+            lstview_Items2.UseCompatibleStateImageBehavior = false;
+            lstview_Items2.MouseDoubleClick += lstview_Items2_MouseDoubleClick;
+            // 
             // Comparison
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1584, 911);
+            Controls.Add(btn_Shop2);
+            Controls.Add(lstview_Items2);
+            Controls.Add(btn_Shop1);
+            Controls.Add(lstview_Items1);
             Controls.Add(richtxtbox_Logs2);
             Controls.Add(richtxtbox_Logs1);
             Controls.Add(btn_HealAll);
@@ -1285,5 +1353,10 @@
         private Button btn_HealAll;
         private RichTextBox richtxtbox_Logs1;
         private RichTextBox richtxtbox_Logs2;
+        private ListView lstview_Items1;
+        private ImageList imgList_Items;
+        private Button btn_Shop1;
+        private Button btn_Shop2;
+        private ListView lstview_Items2;
     }
 }

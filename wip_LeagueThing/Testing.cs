@@ -59,6 +59,7 @@ namespace wip_LeagueThing
         public List<ShopItems> inventory = new List<ShopItems>();
 
         #region Built Stats
+        public bool Dawncore = false;
         public double TotalAttackDamage = 0.0, TotalAbilityPower = 0.0;
         public double TotalAttackSpeed = 0.0;
         public double MaxHealth = 0.0;
@@ -89,7 +90,7 @@ namespace wip_LeagueThing
         public double BonusArmor = 0.0, BonusMagicResist = 0.0;
         public double FlatArmorPen = 0.0, PercentageArmorPen = 0.0;
         public double FlatMagicPen = 0.0, PercentageMagicPen = 0.0;
-        public double HealShieldPower = 0.0;
+        public double BonusHealShieldPower = 0.0, TotalHealShieldPower = 0.0;
         public double AbilityHase = 0.0;
         public double BonusDamage = 0.0, AbilityBonusDamage = 0.0;
         public double OnHit = 0.0;

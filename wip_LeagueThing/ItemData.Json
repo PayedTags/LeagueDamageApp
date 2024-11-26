@@ -3,6 +3,7 @@
   {
     "type": "AdCritFlatArmorPen",
     "name": "Collector",
+    "imageIndex": 0,
     "attackDamage": 50,
     "critChance": 25,
     "flatArmorPen": 10
@@ -10,13 +11,15 @@
   {
     "type": "InfinityEdge",
     "name": "Infinity Edge",
+    "imageIndex": 1,
     "attackDamage": 70,
     "critChance": 25,
     "critDamage": 40
   },
   {
     "type": "AdCritPercentageArmorPen",
-    "name": "Lord Dominik's Regards'",
+    "name": "Lord Dominik's Regards",
+    "imageIndex": 2,
     "attackDamage": 35,
     "critChance": 25,
     "percentageArmorPen": 35
@@ -24,15 +27,34 @@
   {
     "type": "ApModifier",
     "name": "Rabadons DeathCap",
+    "imageIndex": 3,
     "abilityPower": 130,
     "apModifier": 30
   },
   {
     "type": "ApAhHealthManaRegen",
+    "imageIndex": 4,
     "name": "Moonstone",
     "abilityPower": 25,
     "abilityHaste": 20,
     "health": 200,
     "baseManaRegen": 125
+  },
+  {
+    "type": "ApAhManaRegenHS",
+    "imageIndex": 5,
+    "name": "Staff of Flowing Water",
+    "abilityPower": 80,
+    "abilityHaste": 15,
+    "baseManaRegen": 125,
+    "healShieldPower": 10
+  },
+  {
+    "type": "ApManaRegenHS",
+    "imageIndex": 6,
+    "name": "Dawncore",
+    "abilityPower": 45,
+    "baseManaRegen": 100,
+    "healShieldPower": 16
   }
 ]
